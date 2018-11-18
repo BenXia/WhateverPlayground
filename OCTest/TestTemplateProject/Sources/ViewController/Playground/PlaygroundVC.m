@@ -13,6 +13,7 @@ static const NSCalendarUnit kDateComponentFlags = NSCalendarUnitYear | NSCalenda
 @interface PlaygroundVC ()
 
 @property (weak, nonatomic) IBOutlet UILabel *testAttributedTextLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *testImgView;
 
 @end
 
@@ -63,16 +64,34 @@ static const NSCalendarUnit kDateComponentFlags = NSCalendarUnitYear | NSCalenda
     
     NSLog (@"comps: %@ \n\nshowDate: %@\n\n", comps, showDate);
     
+    // 浮点数四舍五入、小数部分尾部不要无用的0
+    NSLog (@"%d", (int)1.7);
+    NSLog (@"%.2f", 1.006);
     NSLog (@"%@  test float format", [self stringWithMaxTwoDecimal:1.006]);
+    
+    
+    // 测试拉伸图片的两个 API 用法
+    //UIImage *image = [UIImage imageNamed:@"icon_schedule_arrow_up"];
+    //NSLog (@"image size: %@  image scale: %f", NSStringFromCGSize(image.size), image.scale);
+    
+    //self.testImgView.image = image;
+    
+    //self.testImgView.image = [image stretchableImageWithLeftCapWidth:31 topCapHeight:1];
+    
+    //self.testImgView.image = [image resizableImageWithCapInsets:UIEdgeInsetsMake(3, 31, 3, 31)];
+    
+    //self.testImgView.image = [image resizableImageWithCapInsets:UIEdgeInsetsMake(3, 31, 3, 31) resizingMode:UIImageResizingModeStretch];
+    
+    // 注意 UIButton 只有 backgroundImage 才可以使用 strechImage
 }
 
 - (NSString *)stringWithMaxTwoDecimal:(double)num {
     return [NSString stringWithFormat:@"%@", @([[NSString stringWithFormat:@"%.2f", num] floatValue])];
 }
 
-- (void)loadView {
-    [super loadView];
-}
+//- (void)loadView {
+//    [super loadView];
+//}
 
 - (void)doSomeThing:(NSObject *)userInfo {
     int max_loop_times = 999999;
