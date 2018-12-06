@@ -17,8 +17,6 @@ static BOOL different (int thing1, int thing2) {
 static NSString *g_name2 = @"wjkflasj";
 static NSString *g_name = @"wjkflasjdf";
 
-static __unsafe_unretained BOOLTestVC* gTimer;
-
 static BOOL haveName () {
     return (BOOL)g_name;  //(BOOL)0x10000000;
 } // haveName
@@ -37,8 +35,6 @@ static BOOL haveName () {
 
 @interface BOOLTestVC ()
 
-@property (nonatomic, strong) NSTimer *timer;
-
 @end
 
 @implementation BOOLTestVC
@@ -49,26 +45,11 @@ static BOOL haveName () {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:3 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        NSLog(@"Hello world");
-    }];
-    NSLog (@"self.timer: %@ class: %@", self.timer, [self.timer class]);
+    [self testCaseOne];
     
-//
-//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//        NSLog (@"invalid timer");
-//        [self.timer invalidate];
-//        self.timer = nil;
-//    });
-//
-    gTimer = self;
+    [self testCaseTwo];
     
-    
-//    [self testCaseOne];
-//    
-//    [self testCaseTwo];
-//    
-//    [self testCaseThree];
+    [self testCaseThree];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -104,64 +85,6 @@ static BOOL haveName () {
     printf ("haveName -> %d \n", haveName());
 }
 
-- (void)dealloc {
-    NSLog (@"gTimer: %@", gTimer);
-    NSLog (@"self: %@", self);
-    if ([self isKindOfClass:[BOOLTestVC class]] && (gTimer == self)) {
-        NSLog (@"BOOLTestVC dealloc");
-    }
-}
-
 @end
-
-
-static NSMutableArray *g_array;
-
-@implementation NSObject (DEALLOC_LOG)
-
-+ (void)load {
-    g_array = [NSMutableArray array];
-}
-
-- (void)dealloc {
-    [g_array addObject:[self class]];
-    
-    if (gTimer == self) {
-        //    if ([self isKindOfClass:[BOOLTestVC class]]) {
-        NSLog (@">NSObject dealloc");
-    }
-}
-
-@end
-
-
-////static NSMutableArray *g_array;
-//
-//@implementation BOOLTestVC (DEALLOC_LOG)
-//
-////+ (void)load {
-////    g_array = [NSMutableArray array];
-////}
-//
-//- (void)dealloc {
-////    [g_array addObject:[self class]];
-//
-////    static int a = 1;
-////
-////    if ((a == 1) && ([self isKindOfClass:[BOOLTestVC class]] || gTimer)) {
-////        a = 2;
-////        NSLog (@"self: %@ gTimer: %@", self, gTimer);
-////    }
-//
-//    if (gTimer == self) {
-////    if ([self isKindOfClass:[BOOLTestVC class]]) {
-//        NSLog (@">BOOLTestVC dealloc");
-//    }
-//}
-//
-//@end
-
-
-
 
 
