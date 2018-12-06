@@ -361,7 +361,6 @@
 				330F7BDB1ED333F00009280A /* Category */,
 				B5FA68BD1EF270290077349C /* Base */,
 				B56480161EF92040009CF536 /* Common */,
-				330F7BE31ED333F00009280A /* View */,
 				330F7BEE1ED333F00009280A /* ViewController */,
 				330F7BD91ED333F00009280A /* AppDelegate.h */,
 				330F7BDA1ED333F00009280A /* AppDelegate.m */,
@@ -403,13 +402,6 @@
 				B56480001EF91FF9009CF536 /* GCDObjC */,
 			);
 			path = Vendor;
-			sourceTree = "<group>";
-		};
-		330F7BE31ED333F00009280A /* View */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		330F7BEE1ED333F00009280A /* ViewController */ = {

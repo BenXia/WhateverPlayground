@@ -12,4 +12,16 @@
 
 @end
 
+@interface NSObject (DEALLOC_LOG)
+
+@end
+
+//@interface BOOLTestVC (DEALLOC_LOG)
+//
+//@end
+
+
+
+
+
 

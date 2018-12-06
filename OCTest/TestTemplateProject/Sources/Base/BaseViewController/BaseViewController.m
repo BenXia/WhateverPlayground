@@ -46,9 +46,9 @@
     return NO;
 }
 
-- (void)dealloc {
-    NSLog (@"====DEALLOC==== %@ ", NSStringFromClass([self class]));
-}
+//- (void)dealloc {
+//    NSLog (@"====DEALLOC==== %@ ", NSStringFromClass([self class]));
+//}
 
 @end
 
