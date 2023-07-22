@@ -1312,6 +1312,243 @@ int robotSim(int* commands, int commandsSize, int** obstacles, int obstaclesSize
 
 
 
+
+bool checkCanBeNeighbour(char *word1, char *word2) {
+    if (word1 == NULL || word2 == NULL || strlen(word1) == 0 || strlen(word2) == 0) {
+        return false;
+    }
+
+    int w1Len = strlen(word1), w2Len = strlen(word2);
+    if (w1Len != w2Len) {
+        return false;
+    }
+
+    int notSameCount = 0;
+    for (int i = 0; i < w1Len; i++) {
+        if (word1[i] != word2[i]) {
+            notSameCount += 1;
+            if (notSameCount > 1) {
+                return false;
+            }
+        }
+    }
+
+    return notSameCount == 1;
+}
+
+void dfsRecursiveA(int *tmp, int tmpSize, char *beginWord, char *endWord, int wLen, char ** wordList, int wordListSize, bool *visited, bool **canBeNeighbour,
+                  int *maxResultSize, char ****result, int** returnColumnSizes, int* returnSize, int *minLen) {
+    if (tmpSize >= *minLen) {
+        return;
+    }
+
+    char *curWord = NULL;
+    for (int i = 0; i < wordListSize; i++) {
+        if (visited[i] == false) {
+                if (canBeNeighbour[tmp[tmpSize - 1]][i]) {
+                    visited[i] = true;
+                    tmp[tmpSize] = i;
+
+                    if (strcmp(wordList[i], endWord) == 0) {
+                        if (tmpSize + 1 == *minLen) {
+                            char **subResult = (char **)malloc(sizeof(char *) * (tmpSize + 1));
+                            for (int j = 0; j < tmpSize + 1; j++) {
+                                subResult[j] = (char *)malloc(sizeof(char) * (wLen + 1));
+                                if (tmp[j] == wordListSize) {
+                                    strcpy(subResult[j], beginWord);
+                                } else {
+                                    strcpy(subResult[j], wordList[tmp[j]]);
+                                }
+                            }
+
+                            if (*returnSize >= *maxResultSize) {
+                                (*maxResultSize) += 1;
+                                (*result) = (char ***)realloc(*result, sizeof(char **) * (*maxResultSize));
+                                (*returnColumnSizes) = (int *)realloc(*returnColumnSizes, sizeof(int) * (*maxResultSize));
+                            }
+
+                            (*result)[*returnSize] = subResult;
+                            (*returnColumnSizes)[*returnSize] = *minLen;
+                            (*returnSize) += 1;
+
+                            visited[i] = false;
+
+                            return;
+                        } else {
+                            // *minLen = tmpSize + 1;
+
+                            // *maxResultSize = 1;
+                            // (*result) = (char ***)realloc(*result, sizeof(char **) * (*maxResultSize));
+                            // (*returnColumnSizes) = (int *)realloc(*returnColumnSizes, sizeof(int) * (*maxResultSize));
+
+                            // if ((*result)[0] != NULL) {
+                            //     free((*result)[0]);
+                            // }
+
+                            // (*result)[0] = subResult;
+                            // (*returnColumnSizes)[0] = *minLen;
+                            // *returnSize = 1;
+
+                            visited[i] = false;
+
+                            return;
+                        }
+                    } else {
+                        dfsRecursiveA(tmp, tmpSize + 1, beginWord, endWord, wLen, wordList, wordListSize, visited, canBeNeighbour,
+                                    maxResultSize, result, returnColumnSizes, returnSize, minLen);
+                    }
+
+                    visited[i] = false;
+                }
+        }
+    }
+}
+
+char *** findLadders(char * beginWord, char * endWord, char ** wordList, int wordListSize, int* returnSize, int** returnColumnSizes) {
+//int ladderLength(char * beginWord, char * endWord, char ** wordList, int wordListSize) {
+    if (beginWord == NULL || endWord == NULL || strlen(beginWord) == 0 || strlen(endWord) == 0) {
+        *returnSize = 0;
+        *returnColumnSizes = NULL;
+        return NULL;
+    }
+    int bLen = strlen(beginWord), eLen = strlen(endWord);
+    if (bLen != eLen) {
+        *returnSize = 0;
+        *returnColumnSizes = NULL;
+        return NULL;
+    }
+
+    bool containEndWord = false;
+    int endIndex = 0;
+    for (int i = 0; i < wordListSize; i++) {
+        if (strcmp(wordList[i], endWord) == 0) {
+            containEndWord = true;
+            endIndex = i;
+            break;
+        }
+    }
+
+    if (!containEndWord) {
+        *returnSize = 0;
+        *returnColumnSizes = NULL;
+        return NULL;
+    } else if (checkCanBeNeighbour(beginWord, endWord)) {
+        *returnSize = 1;
+        *returnColumnSizes = (int *)malloc(sizeof(int) * 1);
+        char ***result = (char ***)malloc(sizeof(char **) * 1);
+        (*returnColumnSizes)[0] = 2;
+        result[0] = (char **)malloc(sizeof(char *) * 2);
+        result[0][0] = (char *)malloc(sizeof(char) * (bLen + 1));
+        result[0][1] = (char *)malloc(sizeof(char) * (bLen + 1));
+        strcpy(result[0][0], beginWord);
+        strcpy(result[0][1], endWord);
+        return result;
+    }
+
+    bool visited[wordListSize];
+    memset(visited, 0, sizeof(visited));
+
+    bool **canBeNeighbour = (bool **)malloc(sizeof(bool *) * (wordListSize + 1));
+    
+    for (int i = 0; i < wordListSize + 1; i++) {
+        canBeNeighbour[i] = (bool *)malloc(sizeof(bool) * (wordListSize + 1));
+        memset(canBeNeighbour[i], 0, sizeof(bool) * (wordListSize + 1));
+    }
+
+    char *left, *right;
+    bool r;
+    for (int i = 0; i < wordListSize + 1; i++) {
+        for (int j = 0; j <= i; j++) {
+            if (i == wordListSize) {
+                left = beginWord;
+            } else {
+                left = wordList[i];
+            }
+            if (j == wordListSize) {
+                right = beginWord;
+            } else {
+                right = wordList[j];
+            }
+
+            r = checkCanBeNeighbour(left, right);
+            canBeNeighbour[i][j] = r;
+            canBeNeighbour[j][i] = r;
+        }
+    }
+
+    int minLen = wordListSize + 2;
+
+    int currentLevel = 1;
+    int queue[wordListSize * 2 + 1], p = -1;
+    queue[0] = wordListSize;
+    queue[1] = -1;
+    int front = 0, tail = 2;
+    while (front < tail) {
+        p = queue[front++];
+
+        if (p == -1) {
+            if (front == tail) {
+                break;
+            } else {
+                queue[tail++] = -1;
+                currentLevel += 1;
+            }
+        } else {
+            if (p == endIndex) {
+                minLen = currentLevel;
+                break;
+            }
+
+            for (int i = 0; i < wordListSize; i++) {
+                if (visited[i] == false && canBeNeighbour[i][p]) {
+                    visited[i] = true;
+                    queue[tail++] = i;
+                }
+            }
+        }
+    }
+
+    int maxResultSize = 1;
+    *returnColumnSizes = (int *)malloc(sizeof(int) * maxResultSize);
+    char ***result = (char ***)malloc(sizeof(char **) * maxResultSize);
+    *returnSize = 0;
+    result[0] = NULL;
+    
+    int *temp = (int *)malloc(sizeof(int) * (wordListSize + 1));
+
+    memset(visited, 0, sizeof(visited));
+    temp[0] = wordListSize;
+    dfsRecursiveA(temp, 1, beginWord, endWord, eLen, wordList, wordListSize, visited, canBeNeighbour,
+                 &maxResultSize, &result, returnColumnSizes, returnSize, &minLen);
+
+    free(temp);
+    for (int i = 0; i < wordListSize + 1; i++) {
+        free(canBeNeighbour[i]);
+    }
+    free(canBeNeighbour);
+    if (minLen == wordListSize + 2) {
+        for (int i = 0; i < maxResultSize; i++) {
+            if (result[i] != NULL) {
+                free(result[i]);
+            }
+        }
+        if (result != NULL) {
+            free(result);
+        }
+        free(*returnColumnSizes);
+
+        *returnSize = 0;
+        *returnColumnSizes = NULL;
+        return NULL;
+    } else {
+        return result;
+    }
+}
+
+
+
+
+
 int main(int argc, const char * argv[]) {
     //int result = reverse(2147483647);
 //    int result = reverse(32768);
@@ -1607,42 +1844,79 @@ int main(int argc, const char * argv[]) {
     
     
     
-    int *commands = (int *)malloc(sizeof(int) * 5);
-    int **obstacles = (int **)malloc(sizeof(int *) * 10);
-    int *obstaclesColSize = (int *)malloc(sizeof(int) * 10);
-    commands[0] = -2;
-    commands[1] = -1;
-    commands[2] = 8;
-    commands[3] = 9;
-    commands[4] = 6;
-    for (int i = 0; i < 10; i++) {
-        obstacles[i] = (int *)malloc(sizeof(int) * 2);
-        obstaclesColSize[i] = 2;
-    }
-    obstacles[0][0] = -1;
-    obstacles[0][1] = 3;
-    obstacles[1][0] = 0;
-    obstacles[1][1] = 1;
-    obstacles[2][0] = -1;
-    obstacles[2][1] = 5;
-    obstacles[3][0] = -2;
-    obstacles[3][1] = -4;
-    obstacles[4][0] = 5;
-    obstacles[4][1] = 4;
-    obstacles[5][0] = -2;
-    obstacles[5][1] = -3;
-    obstacles[6][0] = 5;
-    obstacles[6][1] = -1;
-    obstacles[7][0] = 1;
-    obstacles[7][1] = -1;
-    obstacles[8][0] = 5;
-    obstacles[8][1] = 5;
-    obstacles[9][0] = 5;
-    obstacles[9][1] = 2;
-
-    int result = robotSim(commands, 5, obstacles, 10, obstaclesColSize);
+//    int *commands = (int *)malloc(sizeof(int) * 5);
+//    int **obstacles = (int **)malloc(sizeof(int *) * 10);
+//    int *obstaclesColSize = (int *)malloc(sizeof(int) * 10);
+//    commands[0] = -2;
+//    commands[1] = -1;
+//    commands[2] = 8;
+//    commands[3] = 9;
+//    commands[4] = 6;
+//    for (int i = 0; i < 10; i++) {
+//        obstacles[i] = (int *)malloc(sizeof(int) * 2);
+//        obstaclesColSize[i] = 2;
+//    }
+//    obstacles[0][0] = -1;
+//    obstacles[0][1] = 3;
+//    obstacles[1][0] = 0;
+//    obstacles[1][1] = 1;
+//    obstacles[2][0] = -1;
+//    obstacles[2][1] = 5;
+//    obstacles[3][0] = -2;
+//    obstacles[3][1] = -4;
+//    obstacles[4][0] = 5;
+//    obstacles[4][1] = 4;
+//    obstacles[5][0] = -2;
+//    obstacles[5][1] = -3;
+//    obstacles[6][0] = 5;
+//    obstacles[6][1] = -1;
+//    obstacles[7][0] = 1;
+//    obstacles[7][1] = -1;
+//    obstacles[8][0] = 5;
+//    obstacles[8][1] = 5;
+//    obstacles[9][0] = 5;
+//    obstacles[9][1] = 2;
+//
+//    int result = robotSim(commands, 5, obstacles, 10, obstaclesColSize);
+//
+//    printf("%d", result);
     
-    printf("%d", result);
+    
+    
+    
+    char *beginWord = "hit";
+    char *endWord = "cog";
+//    char **wordList = (char **)malloc(sizeof(char *) * 6);
+//    for (int i = 0; i < 6; i++) {
+//        wordList[i] = (char *)malloc(sizeof(char) * 4);
+//    }
+//    strcpy(wordList[0], "hot");
+//    strcpy(wordList[1], "dot");
+//    strcpy(wordList[2], "dog");
+//    strcpy(wordList[3], "lot");
+//    strcpy(wordList[4], "log");
+//    strcpy(wordList[5], "cog");
+    
+    char **wordList = (char **)malloc(sizeof(char *) * 5);
+    for (int i = 0; i < 5; i++) {
+        wordList[i] = (char *)malloc(sizeof(char) * 4);
+    }
+    strcpy(wordList[0], "hot");
+    strcpy(wordList[1], "dot");
+    strcpy(wordList[2], "dog");
+    strcpy(wordList[3], "lot");
+    strcpy(wordList[4], "log");
+    
+    int returnSize = 0;
+    int *returnColumnSizes = NULL;
+    char *** result = findLadders(beginWord, endWord, wordList, 5, &returnSize, &returnColumnSizes);
+    for (int i = 0; i < returnSize; i++) {
+        printf("[");
+        for (int j = 0; j < returnColumnSizes[i]; j++) {
+            printf("%s,", result[i][j]);
+        }
+        printf("]\n");
+    }
     
     return 0;
 }
