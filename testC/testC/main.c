@@ -1549,6 +1549,160 @@ char *** findLadders(char * beginWord, char * endWord, char ** wordList, int wor
 
 
 
+int solveRecursive(char* s, int start, int end) {
+    char ch;
+    int index = start;
+    int stack[101] = { 0 };
+    int sTop = 0;
+    int opStack[101] = { 0 }; // 1：+ 2: - 3: * 4: /
+    int opsTop = 0;
+
+    while (index <= end) {
+        ch = s[index];
+
+        if (ch == ' ') {
+            index++;
+        } else if (ch == '(') {
+            int leftCount = 1, rIndex = index + 1;
+            for (; rIndex <= end; rIndex++) {
+                ch = s[rIndex];
+                if (ch == '(') {
+                    leftCount += 1;
+                } else if (ch == ')') {
+                    leftCount -= 1;
+                    if (leftCount == 0) {
+                        int result = solveRecursive(s, index + 1, rIndex - 1);
+
+                        stack[sTop++] = result;
+
+                        index = rIndex + 1;
+                        break;
+                    }
+                }
+            }
+        } else if (ch == '+' || ch == '-' || ch == '*' || ch == '/') {
+            if (opsTop > 0) {
+                if ((opStack[opsTop - 1] == 3) || (opStack[opsTop - 1] == 4)) {
+                    int num1 = stack[sTop - 2];
+                    int num2 = stack[sTop - 1];
+                    int result = num1 * num2;
+                    if (opStack[opsTop - 1] == 4) {
+                        result = num1 / num2;
+                    }
+                    stack[sTop - 2] = result;
+                    sTop -= 1;
+                    
+                    opsTop -= 1;
+                    
+                    if (ch == '+') {
+                        while (opsTop > 0) {
+                            int num1 = stack[sTop - 2];
+                            int num2 = stack[sTop - 1];
+                            int result = (opStack[opsTop - 1] == 1) ? num1 + num2 : ((opStack[opsTop - 1] == 2) ? num1 - num2 :  ((opStack[opsTop - 1] == 3) ? num1 * num2 : num1 / num2));
+                            stack[sTop - 2] = result;
+                            sTop -= 1;
+                            
+                            opsTop -= 1;
+                        }
+                        opStack[opsTop++] = 1;
+                    } else if (ch == '-') {
+                        while (opsTop > 0) {
+                            int num1 = stack[sTop - 2];
+                            int num2 = stack[sTop - 1];
+                            int result = (opStack[opsTop - 1] == 1) ? num1 + num2 : ((opStack[opsTop - 1] == 2) ? num1 - num2 :  ((opStack[opsTop - 1] == 3) ? num1 * num2 : num1 / num2));
+                            stack[sTop - 2] = result;
+                            sTop -= 1;
+                            
+                            opsTop -= 1;
+                        }
+                        opStack[opsTop++] = 2;
+                    } else if (ch == '*') {
+                        opStack[opsTop++] = 3;
+                    } else {
+                        opStack[opsTop++] = 4;
+                    }
+                } else if (ch == '+' || ch == '-') {
+                    int num1 = stack[sTop - 2];
+                    int num2 = stack[sTop - 1];
+                    int result = (opStack[opsTop - 1] == 1) ? num1 + num2 : ((opStack[opsTop - 1] == 2) ? num1 - num2 : ((opStack[opsTop - 1] == 3) ? num1 * num2 : num1 / num2));
+                    stack[sTop - 2] = result;
+                    sTop -= 1;
+
+                    if (ch == '+') {
+                        opStack[opsTop-1] = 1;
+                    } else if (ch == '-') {
+                        opStack[opsTop-1] = 2;
+                    } else if (ch == '*') {
+                        opStack[opsTop-1] = 3;
+                    } else {
+                        opStack[opsTop-1] = 4;
+                    }
+                } else {
+                    if (ch == '+') {
+                        opStack[opsTop++] = 1;
+                    } else if (ch == '-') {
+                        opStack[opsTop++] = 2;
+                    } else if (ch == '*') {
+                        opStack[opsTop++] = 3;
+                    } else {
+                        opStack[opsTop++] = 4;
+                    }
+                }
+            } else {
+                if (ch == '+') {
+                    opStack[opsTop++] = 1;
+                } else if (ch == '-') {
+                    opStack[opsTop++] = 2;
+                } else if (ch == '*') {
+                    opStack[opsTop++] = 3;
+                } else {
+                    opStack[opsTop++] = 4;
+                }
+            }
+
+            index += 1;
+        } else {
+            int temp = ch - '0', rIndex = index + 1;
+            for (; rIndex <= end; rIndex++) {
+                ch = s[rIndex];
+                if (ch >= '0' && ch <= '9') {
+                    temp = temp * 10 + (ch - '0');
+                } else {
+                    break;
+                }
+            }
+
+            stack[sTop++] = temp;
+
+            index = rIndex;
+        }
+    }
+
+    while (opsTop > 0) {
+        int num1 = stack[sTop - 2];
+        int num2 = stack[sTop - 1];
+        int result = (opStack[opsTop - 1] == 1) ? num1 + num2 : ((opStack[opsTop - 1] == 2) ? num1 - num2 :  ((opStack[opsTop - 1] == 3) ? num1 * num2 : num1 / num2));
+        stack[sTop - 2] = result;
+        sTop -= 1;
+
+        opsTop -= 1;
+    }
+
+    return stack[0];
+}
+
+int calculate(char * s) {
+    if (s == NULL || strlen(s) == 0) {
+        return 0;
+    }
+
+    return solveRecursive(s, 0, strlen(s) - 1);
+}
+
+
+
+
+
 int main(int argc, const char * argv[]) {
     //int result = reverse(2147483647);
 //    int result = reverse(32768);
@@ -1897,26 +2051,32 @@ int main(int argc, const char * argv[]) {
 //    strcpy(wordList[4], "log");
 //    strcpy(wordList[5], "cog");
     
-    char **wordList = (char **)malloc(sizeof(char *) * 5);
-    for (int i = 0; i < 5; i++) {
-        wordList[i] = (char *)malloc(sizeof(char) * 4);
-    }
-    strcpy(wordList[0], "hot");
-    strcpy(wordList[1], "dot");
-    strcpy(wordList[2], "dog");
-    strcpy(wordList[3], "lot");
-    strcpy(wordList[4], "log");
+//    char **wordList = (char **)malloc(sizeof(char *) * 5);
+//    for (int i = 0; i < 5; i++) {
+//        wordList[i] = (char *)malloc(sizeof(char) * 4);
+//    }
+//    strcpy(wordList[0], "hot");
+//    strcpy(wordList[1], "dot");
+//    strcpy(wordList[2], "dog");
+//    strcpy(wordList[3], "lot");
+//    strcpy(wordList[4], "log");
+//
+//    int returnSize = 0;
+//    int *returnColumnSizes = NULL;
+//    char *** result = findLadders(beginWord, endWord, wordList, 5, &returnSize, &returnColumnSizes);
+//    for (int i = 0; i < returnSize; i++) {
+//        printf("[");
+//        for (int j = 0; j < returnColumnSizes[i]; j++) {
+//            printf("%s,", result[i][j]);
+//        }
+//        printf("]\n");
+//    }
     
-    int returnSize = 0;
-    int *returnColumnSizes = NULL;
-    char *** result = findLadders(beginWord, endWord, wordList, 5, &returnSize, &returnColumnSizes);
-    for (int i = 0; i < returnSize; i++) {
-        printf("[");
-        for (int j = 0; j < returnColumnSizes[i]; j++) {
-            printf("%s,", result[i][j]);
-        }
-        printf("]\n");
-    }
+    
+    char *s = "1*2-3/4+5*6-7*8+9/10";
+    int result = calculate(s);
+    printf("%d\n", result);
+    
     
     return 0;
 }
