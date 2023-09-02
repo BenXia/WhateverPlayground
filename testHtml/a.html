@@ -1,0 +1,17 @@
+<meta charset="utf-8"/>
+<style type="text/css">
+blockquote::before {
+    content: open-quote;
+    color: #ddd;
+    z-index: -1;
+    font-size:80px;
+}
+blockquote::after {
+    content: close-quote;
+    color: #ddd;
+    z-index: -1;
+    font-size:80px;
+		transform: degress(180);
+}
+</style>
+<blockquote>引用一个段落,双引号用::before伪元素实现</blockquote>
