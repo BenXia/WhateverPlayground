@@ -81,7 +81,7 @@ int main() {
 //    }
 //    cout << isCyclicUnirectedGraph() << endl;   //1，有环
 
-
+    // 注意：并查集并不能检查有向图的环，存储的信息不足以判断（a->c  b->c 只能记录一条上游信息，无法检测 c->b 或者 c->a 时候有没有同样的上游）
     // Directed acyclic graph
     //   0
     //  / \
